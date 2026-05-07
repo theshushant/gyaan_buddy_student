@@ -6,11 +6,27 @@ Read more: https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts
 if (!window._flutter) {
   window._flutter = {};
 }
-_flutter.buildConfig = {"engineRevision":"55eae6864b296dd9f43b2cc7577ec256e5c32a8d","builds":[{"compileTarget":"dart2js","renderer":"auto","mainJsPath":"main.dart.js"}]};
+_flutter.buildConfig = {"engineRevision":"55eae6864b296dd9f43b2cc7577ec256e5c32a8d","builds":[{"compileTarget":"dart2js","renderer":"html","mainJsPath":"main.dart.js"}]};
 
+
+const loadingElement = document.getElementById('app-loading');
+let loadingHidden = false;
+
+function hideLoadingElement() {
+  if (loadingHidden || !loadingElement) return;
+  loadingHidden = true;
+  loadingElement.classList.add('is-hidden');
+  window.setTimeout(() => loadingElement.remove(), 220);
+}
+
+window.addEventListener('gyanbuddy-app-ready', hideLoadingElement, {
+  once: true,
+});
 
 _flutter.loader.load({
-  serviceWorkerSettings: {
-    serviceWorkerVersion: "530252826"
-  }
+  onEntrypointLoaded: async function(engineInitializer) {
+    const appRunner = await engineInitializer.initializeEngine();
+    await appRunner.runApp();
+    window.setTimeout(hideLoadingElement, 10000);
+  },
 });
